@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include hdfc_integration_client *.css
+recursive-include hdfc_integration_client *.csv
+recursive-include hdfc_integration_client *.html
+recursive-include hdfc_integration_client *.ico
+recursive-include hdfc_integration_client *.js
+recursive-include hdfc_integration_client *.json
+recursive-include hdfc_integration_client *.md
+recursive-include hdfc_integration_client *.png
+recursive-include hdfc_integration_client *.py
+recursive-include hdfc_integration_client *.svg
+recursive-include hdfc_integration_client *.txt
+recursive-exclude hdfc_integration_client *.pyc
