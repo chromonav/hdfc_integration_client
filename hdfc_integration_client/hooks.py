@@ -27,6 +27,10 @@ app_license = "MIT"
 
 # include js in page
 # page_js = {"page" : "public/js/file.js"}
+doctype_js = {
+	"Payment Request": "public/js/payment_request.js",
+	"Payment Order" : "public/js/payment_order.js",
+}
 
 # include js in doctype views
 # doctype_js = {"doctype" : "public/js/doctype.js"}
@@ -64,7 +68,7 @@ app_license = "MIT"
 # ------------
 
 # before_install = "hdfc_integration_client.install.before_install"
-# after_install = "hdfc_integration_client.install.after_install"
+after_install = "hdfc_integration_client.hdfc_integration_client.install.after_install"
 
 # Uninstallation
 # ------------
@@ -98,6 +102,11 @@ app_license = "MIT"
 #	"ToDo": "custom_app.overrides.CustomToDo"
 # }
 
+override_doctype_class = {
+	"Payment Order": "hdfc_integration_client.hdfc_integration_client.override.payment_order.CustomPaymentOrder",
+	"Payment Request": "hdfc_integration_client.hdfc_integration_client.override.payment_request.CustomPaymentRequest"
+}
+
 # Document Events
 # ---------------
 # Hook on document methods and events
@@ -109,6 +118,17 @@ app_license = "MIT"
 #		"on_trash": "method"
 #	}
 # }
+doc_events = {
+	"Bank Account": {
+		"validate": "hdfc_integration_client.hdfc_integration_client.doc_events.bank_account.validate_ifsc_code",
+	},
+	"Payment Request": {
+		"validate": "hdfc_integration_client.hdfc_integration_client.doc_events.payment_request.valdidate_bank_for_wire_transfer",
+	},
+	"Payment Order": {
+		"validate": "hdfc_integration_client.hdfc_integration_client.doc_events.payment_order.validate",
+	}
+}
 
 # Scheduled Tasks
 # ---------------
