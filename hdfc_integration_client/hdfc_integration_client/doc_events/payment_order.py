@@ -302,35 +302,7 @@ def log_payload(docname):
 		bank_account = frappe.get_doc("Bank Account", row.bank_account)
 		brl = frappe.new_doc("Bank API Request Log")
 		brl.payment_order = payment_order_doc.name
-		brl.payload = json.dumps(str({
-			"TransferPaymentRequest": {
-				"SubHeader": {
-					"requestUUID": str(uuid.uuid4()),
-					"serviceRequestId": "OpenAPI",
-					"serviceRequestVersion": "1.0",
-					"channelId": "PARASON"
-				},
-				"TransferPaymentRequestBody": {
-					"channelId": "PARASON",
-					"corpCode": "Parason",
-					"paymentDetails": [
-						{
-							"txnPaymode": short_code,
-							"custUniqRef": row.name,
-							"corpAccNum": "248012910169",
-							"valueDate": str(payment_order_doc.posting_date),
-							"txnAmount": row.amount,
-							"beneName": bank_account.account_name,
-							"beneCode": bank_account.name,
-							"beneAccNum": bank_account.bank_account_no,
-							"beneAcType": "11",
-							"beneIfscCode": bank_account.branch_code,
-							"beneBankName": bank_account.bank
-						}
-					]
-				}
-			}
-		}))
+		brl.payload = json.dumps()
 		brl.status = "Initiated"
 		brl.save()
 		brl.submit()
