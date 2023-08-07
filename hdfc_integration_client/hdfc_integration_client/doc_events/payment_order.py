@@ -215,7 +215,7 @@ def process_payment(payment_info, company_bank_account, invoices = None):
 				"amount": payment_info.amount,
 				"batch": number,
 				"transaction_id": payment_info.name,
-				"party_name": payment_info.supplier_name,
+				"party_name": payment_info.party,
 				"desc": "UAT Testing"
 		}
 	}
