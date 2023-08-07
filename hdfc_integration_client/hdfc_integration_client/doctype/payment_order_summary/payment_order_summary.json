@@ -7,35 +7,27 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "supplier",
-  "supplier_name",
+  "party_type",
+  "party",
   "amount",
+  "banking_section",
   "mode_of_transfer",
   "payment_status",
+  "message",
   "reference_number",
   "bank_account",
+  "accounting_section",
   "account",
+  "tax_withholding_category",
   "payment_entry",
+  "reference_doctype",
+  "accounting_dimensions_section",
   "state",
+  "cost_center",
+  "project",
   "payment_initiated"
  ],
  "fields": [
-  {
-   "columns": 2,
-   "fieldname": "supplier",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Supplier",
-   "options": "Supplier",
-   "read_only": 1
-  },
-  {
-   "fetch_from": "supplier.supplier_name",
-   "fieldname": "supplier_name",
-   "fieldtype": "Data",
-   "label": "Supplier Name",
-   "read_only": 1
-  },
   {
    "columns": 2,
    "fieldname": "amount",
@@ -107,12 +99,77 @@
    "label": "Payment Initiated",
    "permlevel": 2,
    "read_only": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "party_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Party Type",
+   "options": "DocType",
+   "read_only": 1
+  },
+  {
+   "fieldname": "banking_section",
+   "fieldtype": "Section Break",
+   "label": "Banking"
+  },
+  {
+   "fieldname": "accounting_section",
+   "fieldtype": "Section Break",
+   "label": "Accounting"
+  },
+  {
+   "fieldname": "accounting_dimensions_section",
+   "fieldtype": "Section Break",
+   "label": "Accounting Dimensions"
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project"
+  },
+  {
+   "fieldname": "tax_withholding_category",
+   "fieldtype": "Link",
+   "label": "Tax Withholding Category",
+   "options": "Tax Withholding Category"
+  },
+  {
+   "fieldname": "party",
+   "fieldtype": "Dynamic Link",
+   "in_list_view": 1,
+   "label": "Party",
+   "options": "party_type",
+   "read_only": 1
+  },
+  {
+   "fieldname": "reference_doctype",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Reference Doctype",
+   "options": "DocType",
+   "read_only": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "message",
+   "fieldtype": "Code",
+   "label": "Message",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-08-03 14:39:15.840646",
+ "modified": "2023-08-07 05:02:33.152682",
  "modified_by": "Administrator",
  "module": "Hdfc Integration Client",
  "name": "Payment Order Summary",

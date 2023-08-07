@@ -124,9 +124,6 @@ doc_events = {
 	},
 	"Payment Request": {
 		"validate": "hdfc_integration_client.hdfc_integration_client.doc_events.payment_request.valdidate_bank_for_wire_transfer",
-	},
-	"Payment Order": {
-		"validate": "hdfc_integration_client.hdfc_integration_client.doc_events.payment_order.validate",
 	}
 }
 
@@ -159,9 +156,9 @@ doc_events = {
 # Overriding Methods
 # ------------------------------
 #
-# override_whitelisted_methods = {
-#	"frappe.desk.doctype.event.event.get_events": "hdfc_integration_client.event.get_events"
-# }
+override_whitelisted_methods = {
+	"erpnext.accounts.doctype.payment_request.payment_request.make_payment_request": "hdfc_integration_client.hdfc_integration_client.override.payment_request.make_payment_request"
+}
 #
 # each overriding function accepts a `data` argument;
 # generated from the base implementation of the doctype dashboard,

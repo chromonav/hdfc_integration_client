@@ -3,6 +3,13 @@ frappe.ui.form.on('Payment Request', {
 		if(frm.doc.status == "Initiated") {
 			frm.remove_custom_button(__('Create Payment Entry'))
 		}
+		frm.set_query("payment_type", function() {
+			return {
+				filters: {
+					"company": frm.doc.company
+				}
+			};
+		});
 	},
 	company (frm) {
 		frm.set_query("payment_type", function() {

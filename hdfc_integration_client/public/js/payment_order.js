@@ -66,6 +66,7 @@ frappe.ui.form.on('Payment Order', {
 					frm.add_custom_button(__('Initiate Payment'), function() {
 						frappe.call({
 							method: "hdfc_integration_client.hdfc_integration_client.doc_events.payment_order.make_bank_payment",
+							freeze: 1,
 							args: {
 								docname: frm.doc.name,
 							},
@@ -80,6 +81,36 @@ frappe.ui.form.on('Payment Order', {
 				}
 			}
 		}
+
+		if ((frm.doc.status == "Pending" || frm.doc.status == "Initiated") && frm.doc.docstatus == 1) {
+			if (frm.has_perm('write') && 'summary' in frm.doc) {
+				var pending_status_check = 0
+				for (var j = 0; j < frm.doc.summary.length; j++) {
+					if(frm.doc.summary[j].payment_status == "Initiated") {
+						pending_status_check += 1
+					}
+				}
+
+				if (pending_status_check > 0) {
+					frm.add_custom_button(__('Get Status'), function() {
+						frappe.call({
+							method: "hdfc_integration_client.hdfc_integration_client.doc_events.payment_order.get_payment_status",
+							freeze: 1,
+							args: {
+								docname: frm.doc.name,
+							},
+							callback: function(r) {
+								if(r.message) {
+									frappe.msgprint(r.message)
+								}
+								frm.reload_doc();
+							}
+						});
+					});
+				}
+			}
+		}
+
 
 	},
 	remove_button: function(frm) {
@@ -100,7 +131,7 @@ frappe.ui.form.on('Payment Order', {
 			return
 		}
 		frappe.call({
-			method: "hdfc_integration_client.hdfc_integration_client.doc_events.payment_order.get_supplier_summary",
+			method: "hdfc_integration_client.hdfc_integration_client.override.payment_order.get_party_summary",
 			args: {
 				references: frm.doc.references,
 				company_bank_account: frm.doc.company_bank_account
@@ -114,13 +145,17 @@ frappe.ui.form.on('Payment Order', {
 					for (var i = 0; i < summary_data.length; i++) {
 						doc_total += summary_data[i].amount
 						let row = frm.add_child("summary");
-						row.supplier = summary_data[i].supplier;
-						row.supplier_name = summary_data[i].supplier_name;
+						row.party_type = summary_data[i].party_type;
+						row.party = summary_data[i].party;
 						row.amount = summary_data[i].amount;
 						row.bank_account = summary_data[i].bank_account;
 						row.account = summary_data[i].account;
 						row.mode_of_transfer = summary_data[i].mode_of_transfer;
 						row.state = summary_data[i].state;
+						row.cost_center = summary_data[i].cost_center;
+						row.project = summary_data[i].project;
+						row.tax_withholding_category = summary_data[i].tax_withholding_category;
+						row.reference_doctype = summary_data[i].reference_doctype;
 					}
 					frm.refresh_field("summary");
 					frm.doc.total = doc_total;
@@ -171,4 +206,14 @@ frappe.ui.form.on('Payment Order', {
 		});
 	}
 
+});
+
+frappe.ui.form.on('Payment Order Summary', {
+	setup: function(frm) {
+		frm.set_query("party_type", function() {
+			return {
+				query: "erpnext.setup.doctype.party_type.party_type.get_party_type",
+			};
+		});
+	}
 })
