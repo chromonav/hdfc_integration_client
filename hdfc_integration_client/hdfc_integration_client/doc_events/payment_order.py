@@ -12,7 +12,7 @@ def make_bank_payment(docname):
 	count = 0
 	for i in payment_order_doc.summary:
 		if not i.payment_initiated:
-			invoices = get_invoice_details(payment_order_doc, i)
+			invoices = []
 			payment_response = process_payment(i, payment_order_doc.company_bank_account, invoices=invoices)
 			if "payment_status" in payment_response and payment_response["payment_status"] == "Initiated":
 				frappe.db.set_value("Payment Order Summary", i.name, "payment_initiated", 1)
