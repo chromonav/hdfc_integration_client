@@ -41,8 +41,7 @@ def get_payment_status(docname):
 	for i in payment_order_doc.summary:
 		if i.payment_status == "Initiated":
 			payment_response = get_response(i)
-			if "payment_status" in payment_response and payment_response["payment_status"]:
-				frappe.db.set_value("Payment Order Summary", i.name, "payment_status", payment_response["payment_status"])
+	payment_order_doc.reload()
 
 
 
@@ -235,5 +234,30 @@ def process_payment(payment_info, company_bank_account, invoices = None):
 				return {"payment_status": "Failed", "message": response_data["message"]["status"]}
 
 def get_response(payment_info):
-	# This code is not working as of latest update in HDFC UAT.
-	return {"payment_status": "Initiated"}
+	url = "https://bank-integration.8848digitalerp.com/api/method/hdfc_integration_server.hdfc_integration_server.doctype.bank_request_log.bank_request_log.get_payment_status"
+	number = random.randint(1000,999999)
+	payload = {
+		"status_payload": {
+			"batch": number,
+			"transaction_id": payment_info.name,
+		}
+	}
+	headers = {
+		'Content-Type': 'application/json',
+	}
+	response = requests.request("POST", url, headers=headers, data=json.dumps(payload))
+	if response.status_code == 200:
+		response_data = json.loads(response.text)
+		if "message" in response_data and response_data["message"]:
+			if "status" in response_data["message"] and response_data["message"]["status"] == "Processed":
+				frappe.db.set_value("Payment Order Summary", payment_info.name, "reference_number", payment_info.name)
+				frappe.db.set_value("Payment Entry", payment_info.payment_entry, "reference_no", payment_info.name)
+				frappe.db.set_value("Payment Order Summary", payment_info.name, "payment_status", "Processed")
+			elif "status" in response_data["message"] and response_data["message"]["status"] == "Failed":
+				frappe.db.set_value("Payment Order Summary", payment_info.name, "payment_status", response_data["message"]["status"])
+				payment_entry_doc = frappe.get_doc("Payment Entry", payment_info.payment_entry)
+				payment_entry_doc.cancel()
+			elif "status" in response_data["message"] and response_data["message"]["status"] == "Rejected":
+				frappe.db.set_value("Payment Order Summary", payment_info.name, "payment_status", response_data["message"]["status"])
+				payment_entry_doc = frappe.get_doc("Payment Entry", payment_info.payment_entry)
+				payment_entry_doc.cancel()

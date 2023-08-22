@@ -50,6 +50,7 @@ class CustomPaymentRequest(PaymentRequest):
 		doc = self
 		doc.supplier = self.party 
 		doc.company = self.company
+		doc.base_tax_withholding_net_total = amount
 		doc.tax_withholding_net_total = amount
 		doc.taxes = []
 		taxes = get_party_tax_withholding_details(doc, self.tax_withholding_category)
