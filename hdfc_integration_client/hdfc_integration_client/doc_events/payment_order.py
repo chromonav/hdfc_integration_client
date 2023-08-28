@@ -206,24 +206,23 @@ def log_payload(docname):
 		brl.submit()
 
 def process_payment(payment_info, company_bank_account, invoices = None):
+	batch_number = str(random.randint(1000,999999))
+	payment_payload = frappe._dict({})
+	payment_payload.name = payment_info.name
+	payment_payload.party = payment_info.party
+	payment_payload.batch = batch_number
+	payment_payload.mode_of_transfer = payment_info.mode_of_transfer
+	bank_account_doc = frappe.get_doc("Bank Account", payment_info.bank_account)
+	payment_payload.account_number = bank_account_doc.bank_account_no
+	payment_payload.ifsc = bank_account_doc.branch_code
+	payment_payload.amount = payment_info.amount
 	url = "https://bank-integration.8848digitalerp.com/api/method/hdfc_integration_server.hdfc_integration_server.doctype.bank_request_log.bank_request_log.make_payment"
-	number = random.randint(1000,999999)
-	payload = {
-		"payload": {
-				"random_number": payment_info.name,
-				"amount": payment_info.amount,
-				"batch": number,
-				"transaction_id": payment_info.name,
-				"party_name": payment_info.party,
-				"desc": "UAT Testing"
-		}
-	}
 
 	headers = {
 		'Content-Type': 'application/json',
 	}
 
-	response = requests.request("POST", url, headers=headers, data=json.dumps(payload))
+	response = requests.request("POST", url, headers=headers, data=json.dumps({"payload": payment_payload}))
 
 	if response.status_code == 200:
 		response_data = json.loads(response.text)
@@ -235,11 +234,12 @@ def process_payment(payment_info, company_bank_account, invoices = None):
 
 def get_response(payment_info):
 	url = "https://bank-integration.8848digitalerp.com/api/method/hdfc_integration_server.hdfc_integration_server.doctype.bank_request_log.bank_request_log.get_payment_status"
-	number = random.randint(1000,999999)
+	batch_number = str(random.randint(1000,999999))
 	payload = {
 		"status_payload": {
-			"batch": number,
-			"transaction_id": payment_info.name,
+			"batch": batch_number,
+			"name": payment_info.name,
+			"mode_of_transfer": payment_info.mode_of_transfer
 		}
 	}
 	headers = {
@@ -250,8 +250,9 @@ def get_response(payment_info):
 		response_data = json.loads(response.text)
 		if "message" in response_data and response_data["message"]:
 			if "status" in response_data["message"] and response_data["message"]["status"] == "Processed":
-				frappe.db.set_value("Payment Order Summary", payment_info.name, "reference_number", payment_info.name)
-				frappe.db.set_value("Payment Entry", payment_info.payment_entry, "reference_no", payment_info.name)
+				if response_data["message"]["reference_number"]:
+					frappe.db.set_value("Payment Order Summary", payment_info.name, "reference_number", response_data["message"]["reference_number"])
+					frappe.db.set_value("Payment Entry", payment_info.payment_entry, "reference_no", response_data["message"]["reference_number"])
 				frappe.db.set_value("Payment Order Summary", payment_info.name, "payment_status", "Processed")
 			elif "status" in response_data["message"] and response_data["message"]["status"] == "Failed":
 				frappe.db.set_value("Payment Order Summary", payment_info.name, "payment_status", response_data["message"]["status"])
