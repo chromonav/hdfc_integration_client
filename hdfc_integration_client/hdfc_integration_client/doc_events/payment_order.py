@@ -212,6 +212,14 @@ def process_payment(payment_info, company_bank_account, invoices = None):
 	payment_payload.party = payment_info.party
 	payment_payload.batch = batch_number
 	payment_payload.mode_of_transfer = payment_info.mode_of_transfer
+	if payment_info.mode_of_transfer == "RTGS" and payment_info.amount >= 500000000:
+		lei_number = frappe.db.get_value(payment_info.party_type, payment_info.party, "custom_lei_number")
+		if lei_number:
+			payment_payload.lei_number = lei_number
+		else:
+			frappe.throw("LEI Number required for payment > 50 Cr")
+	else:
+		payment_payload.lei_number = ""
 	bank_account_doc = frappe.get_doc("Bank Account", payment_info.bank_account)
 	payment_payload.account_number = bank_account_doc.bank_account_no
 	payment_payload.ifsc = bank_account_doc.branch_code

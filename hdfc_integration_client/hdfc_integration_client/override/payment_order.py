@@ -5,6 +5,11 @@ from hdfc_integration_client.hdfc_integration_client.doc_events.payment_order im
 class CustomPaymentOrder(PaymentOrder):
 	def validate(self):
 		self.validate_summary()
+		for payment_info in self.summary:
+			if payment_info.mode_of_transfer == "RTGS" and payment_info.amount >= 500000000:
+				lei_number = frappe.db.get_value(payment_info.party_type, payment_info.party, "custom_lei_number")
+				if not lei_number:
+					frappe.throw(f"LEI Number required for payment > 50 Cr. For {payment_info.party_type} - {payment_info.party} - {payment_info.amount}")
 
 	def validate_summary(self):
 		if len(self.summary) <= 0:
